@@ -6,19 +6,13 @@ class JSONFile (){
         objList.add(e)
     }
 
+    //Devolve a estrutura em texto
     fun serialize(): String {
-
         //Cria as funções do visitor
             val v = object: Visitor {
                 var tree = ""
                 override fun visit(obj: JSONObject): String {
                     tree += obj.name + "\n{\n"
-
-                    /*
-                    obj.elements.forEach {
-                        tree += visit(it)
-                    }
-                     */
 
                     return ""
                 }
@@ -64,7 +58,7 @@ class JSONFile (){
     }
 
     //Função de procura básica, devolve true se existe um objecto ou propriedade com o nome inserido ou false caso contrario
-    fun search (name: String): Boolean{
+    fun existsByPropName (name: String): Boolean{
         objList.forEach {
             if (it.name == name) {
                 return true
@@ -76,6 +70,21 @@ class JSONFile (){
         }
         return false
     }
+
+    //Devolve lista de objectos que correspondem à procura
+    fun searchByPropName(name: String): List<Any> {
+        var l = mutableListOf<Any>() //String ou Objectos??
+        objList.forEach {
+            if (it.name == name) {
+                l.add(it)
+            } else if (it is JSONElement) {
+                var l2 = it.searchByPropName(name)
+                if (l2.isNotEmpty())
+                    l.add(l2)
+            }
+        }
+        return l
+    }
 }
 
 abstract class JSONElement (val name: String) {
@@ -83,12 +92,6 @@ abstract class JSONElement (val name: String) {
 }
 
 class JSONObject(name: String, val elements: MutableList<JSONElement>) : JSONElement(name) {
-
-    /*val nElements: MutableList<JSONElement> = mutableListOf()
-
-    fun addElement(e: JSONElement){
-        nElements.add(e)
-    }*/
 
     //Função de procura básica, devolve true se existe um objecto ou propriedade com o nome inserido ou false caso contrario
     fun search (name: String): Boolean{
@@ -104,18 +107,26 @@ class JSONObject(name: String, val elements: MutableList<JSONElement>) : JSONEle
         return false
     }
 
+    //Devolve lista de objectos que correspondem à procura
+    fun searchByPropName (name: String): List<Any>{
+        var l = mutableListOf<Any>()
+        elements.forEach {
+            if (it.name == name) {
+                l.add(it)
+            } else if (it is JSONObject) {
+                var l2 = it.searchByPropName(name)
+                if (l2.isNotEmpty())
+                    l.add(l2)
+            }
+        }
+        return l
+    }
+
     override fun accept(v: Visitor) {
         v.visit(this)
         elements.forEach {
             it.accept(v)
         }
-        /*
-        var s = ""
-        s += v.visit(this) + "\n"
-        elements.forEach {
-            it.accept(v)
-        }
-         */
     }
 
 }
@@ -150,6 +161,7 @@ interface Visitor {
 fun objToJson(o: Object): JSONElement {
     //Não sei se os objectos vêm já formados ou em campos
     //Método que passaria um objeto qualquer para um JSONElement
+    //Reflection?
 }
 */
 
@@ -161,7 +173,12 @@ fun main () {
     val l = mutableListOf<JSONElement>()
     l.add(oString)
     l.add(oNumber)
-    val o = JSONObject("Test",l)
+    val oObj = JSONObject("Object", l)
+    val ly = mutableListOf<JSONElement>()
+    ly.add(JSONString("Nome", "Joaquim"))
+    ly.add(JSONNumber("Idade", 55))
+    ly.add(oObj)
+    val o = JSONObject("Test",ly)
 
     val yString = JSONString("Nome","Ronaldo")
     val yNumber = JSONNumber("Idade",16)
@@ -176,26 +193,12 @@ fun main () {
     l2.add(yList)
     val y = JSONObject("Aluno",l2)
 
+
     json.addObject(o)
     json.addObject(y)
 
     println(json.serialize())
 
-    /*
-    val v = object: Visitor {
-        var tree = ""
-        override fun visit(obj: JSONObject): String {
-            tree += obj.name
-            return ""
-        }
-        override fun visit(elem: JSONElement): String {
-            tree += elem.name
-            return ""
-        }
-    }
-
-    o.accept((v))
-    println(v.tree)
-     */
+    println(json.searchByPropName("Nome"))
 
 }
