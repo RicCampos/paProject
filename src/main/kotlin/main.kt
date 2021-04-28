@@ -1,3 +1,6 @@
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.hasAnnotation
+
 class JSONFile (){
     var objList: MutableList<JSONObject> = mutableListOf()
 
@@ -12,16 +15,16 @@ class JSONFile (){
             val v = object: Visitor {
                 var tree = ""
                 override fun visit(obj: JSONObject): String {
-                    tree += obj.name + "\n{\n"
+                    tree += "\"${obj.name}\": {\n"
 
                     return ""
                 }
                 override fun visit(elem: JSONElement): String {
-                    tree += elem.name + ": "
+                    tree += "\t\"${elem.name}\": "
 
                     if(elem is JSONString){
                         elem as JSONString
-                        tree += "'" + elem.value + "'"
+                        tree += "\"${elem.value}\""
                     }
                     else if(elem is JSONNumber) {
                         elem as JSONNumber
