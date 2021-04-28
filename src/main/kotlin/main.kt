@@ -161,12 +161,36 @@ interface Visitor {
 }
 
 /*
-fun objToJson(o: Object): JSONElement {
+fun objToJson(o: Object/KClass?): JSONElement {
     //Não sei se os objectos vêm já formados ou em campos
     //Método que passaria um objeto qualquer para um JSONElement
     //Reflection?
+    clazz = o::class
+    type = o::type
+    val jo = JSONString(clazz, fun recursiva que return list com elements do obj.
+    ...
+
+    return jo
 }
 */
+
+/*
+fun objElements(o: Object): List<Any> {
+    list = mutablelist
+    o.elements.foreach
+    if it.type == Object
+    list.add(objToJson(it))
+    if else it.type == String
+    list.add (JSONString(it.prop.name, it.prop.value)
+
+    return list
+}
+ */
+
+/*
+fun getJSONElementType(o: Object): JSONElement{
+}
+ */
 
 fun main () {
     var json = JSONFile()
